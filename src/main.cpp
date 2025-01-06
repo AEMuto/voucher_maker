@@ -3,18 +3,16 @@
 #include <lvgl.h>
 #include <nvs_flash.h>
 
-#include "WifiConfig.h"
-#include "pin_config.h"
+#include "NetworkSetup.h"
+#include "tdisplay_config.h"
 
-#define SCREEN_WIDTH 170
-#define SCREEN_HEIGHT 320
 #define BUF_SIZE SCREEN_WIDTH *SCREEN_HEIGHT / 10  // larger buffer for smoother updates
 
 static lv_color_t buf[BUF_SIZE];
 static lv_disp_draw_buf_t draw_buf;
 
 TFT_eSPI tft = TFT_eSPI();  // Display driver object representation
-WifiConfig wifi;            // Instanciate WifiConfig object
+NetworkSetup network;            // Instanciate WifiConfig object
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p) {
   uint32_t w = (area->x2 - area->x1 + 1);
@@ -68,30 +66,28 @@ void setup() {
 
   // Fill screen with a color to see boundaries
   lv_obj_t *screen = lv_scr_act();
-  lv_obj_set_style_bg_color(screen, lv_color_black(), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_bg_color(screen, lv_color_hex(0x181926), LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_bg_opa(screen, LV_OPA_100, LV_PART_MAIN | LV_STATE_DEFAULT);
 
   // If there is no configured WiFi, start the configuration portal
-  if (!wifi.isConfigured()) {
-    wifi.begin();
+  if (!network.is_configured()) {
+    network.start_config();
   } else {
-    Preferences prefs;
-    if (prefs.begin("wifi", true)) {
-      String ssid = prefs.getString("ssid", "");
-      String password = prefs.getString("password", "");
-      prefs.end();
-
-      if (ssid.length() > 0) {
-        WiFi.begin(ssid.c_str(), password.c_str());
-      }
-    }
+    network.connect_to_wan();
   }
 }
 
 void loop() {
-  if (!wifi.isConfigured()) {
-    wifi.handle();
+  // Handle WiFi configuration
+  if (!network.is_configured()) {
+    network.handle_webclient();
   }
+  // Handle LittlevGL tasks
   lv_task_handler();
   delay(5);
+  if (WiFi.status() == WL_CONNECTED) {
+    // Do something when connected
+  } else {
+    // try to reconnect with the main WiFi network
+  }
 }

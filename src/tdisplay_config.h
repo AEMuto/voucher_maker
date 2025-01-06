@@ -29,3 +29,6 @@
 
 #define PIN_TOUCH_INT                16
 #define PIN_TOUCH_RES                21
+
+#define SCREEN_WIDTH 170
+#define SCREEN_HEIGHT 320
