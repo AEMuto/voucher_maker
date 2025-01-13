@@ -1,0 +1,33 @@
+#pragma once
+
+enum class NetworkState {
+    DISCONNECTED,
+    INITIALIZING,
+    AP_MODE,
+    CONNECTING,
+    CONNECTED,
+    CONNECTION_FAILED,
+    SERVER_VERIFICATION
+};
+
+enum class AppState {
+    BOOT,
+    HARDWARE_CHECK,
+    NETWORK_SETUP,
+    SERVER_SETUP,
+    READY,
+    GENERATING_VOUCHER,
+    VIEWING_VOUCHERS,
+    PRINTING,
+    ERROR
+};
+
+enum class ErrorState {
+    NONE,
+    NETWORK_UNREACHABLE,
+    SERVER_UNREACHABLE,
+    INVALID_CREDENTIALS,
+    MQTT_ERROR,
+    PRINTER_ERROR,
+    CRITICAL_ERROR
+};

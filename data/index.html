@@ -1,0 +1,46 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Setup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="title">
+    <h1>&mdash; Voucher Maker &mdash;</h1>
+  </div>
+  <div class="container">
+    <h2>Network Configuration</h2>
+    <p>
+      Please enter your WiFi name and <br>
+      password to connect your device <br>
+      to the internet
+    </p>
+    <form id="wifiForm">
+      <div class="form-group">
+        <label for="ssid" class="screen-reader-text">WiFi Network:</label>
+        <select id="ssid" name="ssid" required>
+          <option value="">Select a network</option>
+        </select>
+        <div class="scan-status"></div>
+      </div>
+      <div class="form-group">
+        <label for="password" class="screen-reader-text">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="button" id="togglePassword" class="toggle-password">Show</button>
+      </div>
+      <div class="form-group manual-entry">
+        <label for="manualEntry">
+          <input type="checkbox" id="manualEntry"> Enter wifi name manually
+        </label>
+        <input type="text" id="manualSsid" placeholder="Disabled" disabled>
+      </div>
+      <button type="submit">Connect</button>
+    </form>
+  </div>
+    <div id="status">Test</div>
+  </body>
+  <script src="script.js"></script>
+</html>
