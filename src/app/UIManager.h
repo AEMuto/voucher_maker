@@ -1,6 +1,8 @@
 #pragma once
 
-#include <globals.h>
+#include <TFT_eSPI.h>
+#include <lvgl.h>
+
 #define SCREEN_WIDTH 170
 #define SCREEN_HEIGHT 320
 #define BUF_SIZE SCREEN_WIDTH * SCREEN_HEIGHT / 10  // increase if you need smoother updates

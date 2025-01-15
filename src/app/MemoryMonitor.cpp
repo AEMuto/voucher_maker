@@ -1,4 +1,3 @@
-#pragma once
 #include "MemoryMonitor.h"
 
 // Initialize static members

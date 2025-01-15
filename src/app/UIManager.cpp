@@ -1,4 +1,3 @@
-#pragma once
 #include "UIManager.h"
 
 TFT_eSPI UIManager::tft = TFT_eSPI();
