@@ -3,7 +3,8 @@
 Model::Model() : currentAppState(AppState::BOOT),
                  currentNetworkState(NetworkState::DISCONNECTED),
                  currentErrorState(ErrorState::NONE),
-                 accessPointSSID(DEFAULT_AP_SSID) {
+                 accessPointSSID(DEFAULT_AP_SSID),
+                 nvsKey(NVS_KEY) {
   accessPointPWD = pwdGen(8);
 }
 

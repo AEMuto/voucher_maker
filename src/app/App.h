@@ -1,27 +1,18 @@
 #pragma once
 
-using namespace std; 
+#include <globals.h>
 
-#include <Arduino.h>
-#include <memory>
-
-#include <pins.h>
 #include "Model.h"
 #include "NetworkManager.h"
 #include "UIManager.h"
-
-#ifdef DEBUG
 #include "MemoryMonitor.h"
-#endif
 
 class App {
  private:
   unique_ptr<Model> model;
   unique_ptr<UIManager> uiManager;
   unique_ptr<NetworkManager> networkManager;
-#ifdef DEBUG
-  unique_ptr<MemoryMonitor> memoryMonitor;
-#endif
+  unique_ptr<MemoryMonitorBase> memoryMonitor;
 
  public:
   App();
@@ -29,6 +20,7 @@ class App {
   void loop();
 
  private:
+  void handleAppState();
   void handleBootState();
   void handleNetworkSetup();
 };

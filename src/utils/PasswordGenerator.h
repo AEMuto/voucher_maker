@@ -1,6 +1,7 @@
+#pragma once
 #include <Arduino.h>
 
-String pwdGen(int length) {
+inline String pwdGen(int length) {
   const char characters[] =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz"

@@ -1,7 +1,11 @@
 #include "NetworkManager.h"
 
-explicit NetworkManager::NetworkManager(Model& model) : model(model) {
+NetworkManager::NetworkManager(Model& model) : model(model) {
   model.addObserver(this);
+}
+
+NetworkManager::~NetworkManager() {
+  model.removeObserver(this);
 }
 
 void NetworkManager::begin() {
@@ -16,8 +20,9 @@ void NetworkManager::begin() {
 
 void NetworkManager::update() {
   // Check if we need to switch to AP mode
-  if (WiFi.status() != WL_CONNECTED) {
-    model.setNetworkState(NetworkState::AP_MODE);
+  if (WiFi.status() != WL_CONNECTED &&
+      model.getNetworkState() != NetworkState::DISCONNECTED) {
+    model.setNetworkState(NetworkState::DISCONNECTED);
   }
 }
 
@@ -27,7 +32,7 @@ void NetworkManager::setupAccessPoint() {
       model.getAccessPointSSID().c_str(),
       model.getAccessPointPWD().c_str(),
       model.getAccessPointChannel(),
-      false,  // Hidden SSID
+      0,
       model.getMaxClients());
 }
 
@@ -35,6 +40,9 @@ void NetworkManager::onModelChanged(const ModelEventData& event) {
   switch (event.event) {
     case ModelEvent::NETWORK_STATUS_CHANGED:
       handleNetworkStateChange(*static_cast<NetworkState*>(event.data));
+      break;
+    case ModelEvent::CREDENTIALS_UPDATED:
+      // Handle credentials update
       break;
     // Handle other relevant events
     default:
@@ -45,10 +53,34 @@ void NetworkManager::onModelChanged(const ModelEventData& event) {
 void NetworkManager::handleNetworkStateChange(NetworkState newState) {
   // React to network state changes
   switch (newState) {
+    case NetworkState::DISCONNECTED:
+      // Transition to AP mode
+      model.setNetworkState(NetworkState::AP_MODE);
+      break;
     case NetworkState::AP_MODE:
       setupAccessPoint();
       break;
-    // Handle other states
+    case NetworkState::WAITING_FOR_CLIENT:
+      // AP is active, waiting for user to connect
+      break;
+    case NetworkState::CLIENT_CONNECTED:
+      // User has connected to our AP
+      break;
+    case NetworkState::AWAITING_CREDENTIALS:
+      // Waiting for user to submit credentials
+      break;
+    case NetworkState::CONNECTING:
+      // Attempt to connect to main network
+      WiFi.begin();
+      break;
+    case NetworkState::CONNECTION_FAILED:
+      // Connection attempt failed
+      model.setNetworkState(NetworkState::DISCONNECTED);
+      break;
+    case NetworkState::CONNECTED:
+      // Transition to main network
+      model.setNetworkState(NetworkState::CONNECTED);
+      break;
     default:
       break;
   }

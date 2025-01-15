@@ -1,5 +1,7 @@
 #include "MemoryMonitor.h"
+#include <Arduino.h>
 
+#ifdef DEBUG
 // Initialize static members
 size_t MemoryMonitor::lowestHeap = 0;
 size_t MemoryMonitor::lowestPSRAM = 0;
@@ -49,4 +51,13 @@ void MemoryMonitor::printStats(bool forceOutput) {
     Serial.printf("Lowest PSRAM Ever: %u bytes\n", stats.lowestPSRAMSeen);
     Serial.println("==================\n");
   }
+}
+#endif
+
+unique_ptr<MemoryMonitorBase> createMemoryMonitor() {
+#ifdef DEBUG
+  return make_unique<MemoryMonitor>();
+#else
+  return nullptr;
+#endif
 }

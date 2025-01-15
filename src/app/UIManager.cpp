@@ -1,14 +1,40 @@
 #include "UIManager.h"
 
 TFT_eSPI UIManager::tft = TFT_eSPI();
+lv_disp_draw_buf_t UIManager::draw_buf;
+lv_color_t UIManager::buf[BUFFER_SIZE];
 
-UIManager::UIManager() {
+UIManager::UIManager(Model &model) : model(model) {
+  model.addObserver(this);
+}
+
+UIManager::~UIManager() {
+  model.removeObserver(this);
+}
+
+void UIManager::onModelChanged(const ModelEventData &event) {
+  switch (event.event) {
+    case ModelEvent::APP_STATE_CHANGED:
+      // Handle app state change
+      break;
+    case ModelEvent::NETWORK_STATUS_CHANGED:
+      // Handle network status change
+      break;
+    case ModelEvent::ERROR_OCCURRED:
+      // Handle error event
+      break;
+    default:
+      break;
+  }
+}
+
+void UIManager::begin() {
   lv_init();          // Initialize LVGL
   tft.begin();        // Initialize the display
   tft.setRotation(0); /* Portrait orientation */
 
   // Initialize buffer
-  lv_disp_draw_buf_init(&draw_buf, buf, NULL, BUF_SIZE);
+  lv_disp_draw_buf_init(&draw_buf, buf, NULL, BUFFER_SIZE);
 
   /* Initialize the display driver for LVGL */
   static lv_disp_drv_t disp_drv;
@@ -24,6 +50,10 @@ UIManager::UIManager() {
   lv_indev_drv_init(&indev_drv);
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   lv_indev_drv_register(&indev_drv);
+}
+
+void UIManager::update() {
+  lv_task_handler();  // Call the LVGL task handler
 }
 
 /**

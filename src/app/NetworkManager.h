@@ -1,11 +1,7 @@
 #pragma once
-#include <ArduinoJson.h>
-#include <AsyncJson.h>
-#include <ESPAsyncWebServer.h>
-#include <Preferences.h>
-#include <SPIFFS.h>
+
+#include <globals.h>
 #include <WiFi.h>
-#include <nvs_flash.h>
 
 #include "Model.h"
 
@@ -14,7 +10,8 @@ class NetworkManager : public Observer {
   Model& model;
 
  public:
-  explicit NetworkManager(Model& model);
+  NetworkManager(Model& model);
+  ~NetworkManager() override;
   void begin();
   void update();
   void setupAccessPoint();
