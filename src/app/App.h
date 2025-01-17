@@ -1,11 +1,13 @@
 #pragma once
 
 #include <globals.h>
+#include <nvs_flash.h>
 
 #include "Model.h"
 #include "NetworkManager.h"
 #include "UIManager.h"
 #include "MemoryMonitor.h"
+#include "ButtonManager.h"
 
 class App {
  private:
@@ -13,6 +15,7 @@ class App {
   unique_ptr<UIManager> uiManager;
   unique_ptr<NetworkManager> networkManager;
   unique_ptr<MemoryMonitorBase> memoryMonitor;
+  unique_ptr<ButtonManager> buttonManager;
 
  public:
   App();
@@ -21,6 +24,5 @@ class App {
 
  private:
   void handleAppState();
-  void handleBootState();
-  void handleNetworkSetup();
+  void handleButtonAction(ButtonAction action);
 };

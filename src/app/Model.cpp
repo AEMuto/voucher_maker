@@ -3,10 +3,8 @@
 Model::Model() : currentAppState(AppState::BOOT),
                  currentNetworkState(NetworkState::DISCONNECTED),
                  currentErrorState(ErrorState::NONE),
-                 accessPointSSID(DEFAULT_AP_SSID),
-                 nvsKey(NVS_KEY) {
-  accessPointPWD = pwdGen(8);
-}
+                 apCredentials(CredentialsData{DEFAULT_AP_SSID, pwdGen(8)}),
+                 nvsKey(NVS_KEY) {}
 
 void Model::addObserver(Observer* observer) {
   observers.push_back(observer);
@@ -24,10 +22,21 @@ void Model::notifyObservers(const ModelEventData& event) {
   }
 }
 
-const String& Model::getAccessPointSSID() const { return accessPointSSID; }
-const String& Model::getAccessPointPWD() const { return accessPointPWD; }
-int Model::getAccessPointChannel() { return AP_CHANNEL; }
+int Model::getAPChannel() { return AP_CHANNEL; }
 int Model::getMaxClients() { return MAX_CLIENTS; }
+
+void Model::setWANCredentials(CredentialsData& credentials) {
+  wanCredentials.ssid = credentials.ssid;
+  wanCredentials.password = credentials.password;
+}
+
+void Model::setAPCredentials(CredentialsData& credentials) {
+  apCredentials.ssid = credentials.ssid;
+  apCredentials.password = credentials.password;
+}
+
+const CredentialsData& Model::getWANCredentials() const { return wanCredentials; }
+const CredentialsData& Model::getAPCredentials() const { return apCredentials; }
 
 void Model::setAppState(AppState newState) {
   if (currentAppState != newState) {
@@ -58,3 +67,22 @@ void Model::setErrorState(ErrorState newState) {
 }
 
 ErrorState Model::getErrorState() const { return currentErrorState; }
+
+void Model::retrieveWANCredentials() {
+  Preferences preferences;
+  preferences.begin("wan", true);
+  wanCredentials.ssid = preferences.getString("ssid", "");
+  wanCredentials.password = preferences.getString("password", "");
+  preferences.end();
+  ModelEventData event{ModelEvent::CREDENTIALS_UPDATED, &wanCredentials};
+  notifyObservers(event);
+}
+
+void Model::writeWANCredentials() {
+  Preferences preferences;
+  preferences.begin("wan", false);
+  preferences.putString("ssid", wanCredentials.ssid);
+  preferences.putString("password", wanCredentials.password);
+  preferences.end();
+}
+

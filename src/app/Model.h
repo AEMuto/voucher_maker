@@ -4,9 +4,8 @@
 #define NVS_KEY "wifi1234"
 #endif
 
-#include <globals.h>
 #include <Preferences.h>
-#include <nvs_flash.h>
+#include <globals.h>
 
 #include "../utils/PasswordGenerator.h"
 #include "Observer.h"
@@ -19,9 +18,8 @@ class Model {
   AppState currentAppState;
   NetworkState currentNetworkState;
   ErrorState currentErrorState;
-  CredentialsData credentials;
-  String accessPointSSID;
-  String accessPointPWD;
+  CredentialsData wanCredentials;
+  CredentialsData apCredentials;
   String nvsKey;
 
   // Configuration constants
@@ -37,10 +35,14 @@ class Model {
   void notifyObservers(const ModelEventData& event);
 
   // Getters for network configuration
-  const String& getAccessPointSSID() const;
-  const String& getAccessPointPWD() const;
-  static int getAccessPointChannel();
+  static int getAPChannel();
   static int getMaxClients();
+
+  // Credentials management
+  void setWANCredentials(CredentialsData& credentials);
+  void setAPCredentials(CredentialsData& credentials);
+  const CredentialsData& getWANCredentials() const;
+  const CredentialsData& getAPCredentials() const;
 
   // States management
   void setAppState(AppState newState);
@@ -49,4 +51,8 @@ class Model {
   NetworkState getNetworkState() const;
   void setErrorState(ErrorState newState);
   ErrorState getErrorState() const;
+
+ private:
+  void retrieveWANCredentials();
+  void writeWANCredentials();
 };

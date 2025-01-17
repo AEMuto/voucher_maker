@@ -8,34 +8,6 @@ NetworkManager::~NetworkManager() {
   model.removeObserver(this);
 }
 
-void NetworkManager::begin() {
-  // Initialize WiFi
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAPdisconnect();
-  WiFi.disconnect();
-  WiFi.setAutoConnect(true);
-  WiFi.setAutoReconnect(true);
-  WiFi.setSleep(false);
-}
-
-void NetworkManager::update() {
-  // Check if we need to switch to AP mode
-  if (WiFi.status() != WL_CONNECTED &&
-      model.getNetworkState() != NetworkState::DISCONNECTED) {
-    model.setNetworkState(NetworkState::DISCONNECTED);
-  }
-}
-
-void NetworkManager::setupAccessPoint() {
-  // Access configuration through Model's getters
-  WiFi.softAP(
-      model.getAccessPointSSID().c_str(),
-      model.getAccessPointPWD().c_str(),
-      model.getAccessPointChannel(),
-      0,
-      model.getMaxClients());
-}
-
 void NetworkManager::onModelChanged(const ModelEventData& event) {
   switch (event.event) {
     case ModelEvent::NETWORK_STATUS_CHANGED:
@@ -50,15 +22,22 @@ void NetworkManager::onModelChanged(const ModelEventData& event) {
   }
 }
 
+void NetworkManager::begin() { // main setup
+  // get wan credentials from model?
+}
+
+void NetworkManager::update() { // main loop, Needed?
+  // handle network state changes?
+}
+
 void NetworkManager::handleNetworkStateChange(NetworkState newState) {
   // React to network state changes
   switch (newState) {
     case NetworkState::DISCONNECTED:
-      // Transition to AP mode
-      model.setNetworkState(NetworkState::AP_MODE);
+      // If model has wan credentials, attempt to connect else set up AP, web server etc.
       break;
     case NetworkState::AP_MODE:
-      setupAccessPoint();
+      // Set up AP if not already done
       break;
     case NetworkState::WAITING_FOR_CLIENT:
       // AP is active, waiting for user to connect
@@ -71,15 +50,12 @@ void NetworkManager::handleNetworkStateChange(NetworkState newState) {
       break;
     case NetworkState::CONNECTING:
       // Attempt to connect to main network
-      WiFi.begin();
       break;
     case NetworkState::CONNECTION_FAILED:
       // Connection attempt failed
-      model.setNetworkState(NetworkState::DISCONNECTED);
       break;
     case NetworkState::CONNECTED:
       // Transition to main network
-      model.setNetworkState(NetworkState::CONNECTED);
       break;
     default:
       break;

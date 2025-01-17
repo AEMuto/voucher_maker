@@ -4,6 +4,13 @@ App::App() {
   model = make_unique<Model>();
   uiManager = make_unique<UIManager>(*model);
   networkManager = make_unique<NetworkManager>(*model);
+  Serial.println("Creating button manager");
+  delay(100);
+  buttonManager = make_unique<ButtonManager>([this](ButtonAction action) {
+    Serial.println("Initiating button action");
+    delay(100);
+    handleButtonAction(action);
+  });
   memoryMonitor = createMemoryMonitor();
 }
 
@@ -13,6 +20,11 @@ void App::begin() {
   // Initialize hardware
   pinMode(PIN_POWER, OUTPUT);
   digitalWrite(PIN_POWER, HIGH);  // Enable screen backlight
+
+  // Button setup
+  pinMode(IO00_BTN, INPUT_PULLUP);
+  pinMode(IO14_BTN, INPUT_PULLUP);
+  pinMode(IO01_BTN, INPUT_PULLUP);
 
   // Initialize NVS
   esp_err_t err = nvs_flash_init();
@@ -25,31 +37,45 @@ void App::begin() {
   // Initialize managers
   uiManager->begin();
   networkManager->begin();
+  buttonManager->begin();
 
   // Initialize memory monitor if available (DEBUG build)
   if (memoryMonitor) memoryMonitor->begin();
-
-  // Next State
-  model->setAppState(AppState::NETWORK_SETUP);
 }
 
-void App::loop() {  
+void App::loop() {
   // Update managers
+  buttonManager->update();
   uiManager->update();
   networkManager->update();
-  
+
   // Handle app state
   handleAppState();
+}
+
+void App::handleButtonAction(ButtonAction action) {
+  // Handle reboot immediately if requested
+  if (action == ButtonAction::REBOOT) {
+    // Could add a quick UI feedback if needed
+    Serial.println("Rebooting...");
+    delay(100);  // Brief delay to ensure any final operations complete
+    ESP.restart();
+    return;  // Not strictly needed due to restart, but good practice
+  }
+  model->notifyObservers(ModelEventData::createButtonEvent(action));
 }
 
 void App::handleAppState() {
   // Main state machine logic
   switch (model->getAppState()) {
     case AppState::BOOT:
-      handleBootState();
+      // Serial.println("Boot state");
+      // delay(1000);
+      model->setAppState(AppState::NETWORK_SETUP);
       break;
     case AppState::NETWORK_SETUP:
-      handleNetworkSetup();
+      // Serial.println("Network setup state");
+      // delay(1000);
       break;
     case AppState::READY:
       // Ready state logic
@@ -67,22 +93,4 @@ void App::handleAppState() {
       // Error state logic
       break;
   }
-}
-
-void App::handleBootState() {
-  // Boot state logic
-  // Transition to next state
-  model->setAppState(AppState::NETWORK_SETUP);
-}
-
-void App::handleNetworkSetup() {
-  try {
-    // Network setup logic
-    // Transition to next state
-    model->setAppState(AppState::READY);
-  } catch (const exception& e) {
-    // Handle network setup error
-    model->setErrorState(ErrorState::NETWORK_UNREACHABLE);
-  }
-  
 }

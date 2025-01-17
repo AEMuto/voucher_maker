@@ -14,7 +14,6 @@ struct VoucherData {
 struct CredentialsData {
     String ssid;
     String password;
-    NetworkState connectionState;
     // Add other credential-related fields
 };
 

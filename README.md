@@ -14,9 +14,9 @@ This repository contains the source code for a project designed to integrate an 
    - Sends voucher data to the Raspberry Pi via MQTT.
 
 ## Roadmap / TODOs
-- [x] **WiFi Configuration Portal:**
+- [-] **WiFi Configuration Portal:**
   - [x] Implement a web interface for configuring WiFi credentials.
-  - [x] Securely store credentials using the ESP32's non-volatile storage (NVS).
+  - [ ] Encrypt NVS.
 - [ ] **Raspberry Pi Integration:**
   - [ ] Finalize MQTT communication between the ESP32 and the Raspberry Pi.
 - [ ] **Printing Integration:**
